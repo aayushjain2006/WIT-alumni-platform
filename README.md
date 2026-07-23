@@ -1,5 +1,5 @@
 
-  # Alumni Engagement Platform UI (Copy) (Copy)
+  # Alumni Engagement Platform UI 
 
   This is a code bundle for Alumni Engagement Platform UI (Copy) (Copy). The original project is available at https://www.figma.com/design/ZHaG2A4pUGzY5P6kZmEvAX/Alumni-Engagement-Platform-UI--Copy---Copy-.
 
