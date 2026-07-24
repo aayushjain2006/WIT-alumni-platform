@@ -99,7 +99,7 @@ export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
           </div>
 
           {error && (
-            <div className="text-sm text-destructive text-center">
+            <div className="bg-red-50 border border-red-500 text-red-600 p-3 rounded-md text-sm font-bold text-center shadow-sm">
               {error}
             </div>
           )}

@@ -69,10 +69,10 @@ const login = async (req, res, next) => {
 
     const user = await User.findOne({ email: value.email }).select('+password');
     if (!user) {
-      return next(new AppError('Please register an account. No user found with this email.', 404));
+      return next(new AppError('You are not a registered student of the WIT. Please sign up and then try to login.', 404));
     }
     if (!(await user.comparePassword(value.password))) {
-      return next(new AppError('Incorrect password', 401));
+      return next(new AppError('You entered the wrong ID or password. Please try again.', 401));
     }
 
     if (user.status === 'suspended') {
