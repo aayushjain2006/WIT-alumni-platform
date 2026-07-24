@@ -13,8 +13,8 @@ const registerSchema = Joi.object({
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
   role: Joi.string().valid('student', 'alumni', 'admin').default('student'),
-  department: Joi.string().valid('CSE', 'ECM', 'IT', 'ENTC', 'MECH AND AUTOMATION', 'CIVIL', 'AIML').required(),
-  graduationYear: Joi.number().required()
+  department: Joi.string().valid('CSE', 'ECM', 'IT', 'ENTC', 'MECH AND AUTOMATION', 'CIVIL', 'AIML').default('CSE'),
+  graduationYear: Joi.number().default(2026)
 });
 
 const loginSchema = Joi.object({
