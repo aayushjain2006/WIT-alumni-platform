@@ -30,8 +30,8 @@ export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 
     try {
       await login(email, password, role)
-    } catch (err) {
-      setError('Invalid credentials. Please try again.')
+    } catch (err: any) {
+      setError(err.message || 'Invalid credentials. Please try again.')
     }
   }
 

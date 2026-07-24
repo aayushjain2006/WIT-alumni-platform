@@ -68,8 +68,11 @@ const login = async (req, res, next) => {
     if (error) return next(new AppError(error.details[0].message, 400));
 
     const user = await User.findOne({ email: value.email }).select('+password');
-    if (!user || !(await user.comparePassword(value.password))) {
-      return next(new AppError('Incorrect email or password', 401));
+    if (!user) {
+      return next(new AppError('Please register an account. No user found with this email.', 404));
+    }
+    if (!(await user.comparePassword(value.password))) {
+      return next(new AppError('Incorrect password', 401));
     }
 
     if (user.status === 'suspended') {
