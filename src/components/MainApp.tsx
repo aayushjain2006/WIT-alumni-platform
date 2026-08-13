@@ -201,7 +201,7 @@ export function MainApp() {
   }
 
   return (
-    <div className="min-h-screen app-bg bg-background">
+    <div className="min-h-screen bg-background">
       {/* Mobile-first navigation */}
       <Navigation currentScreen={currentScreen} onScreenChange={handleNavigate} />
       

@@ -75,16 +75,15 @@ export function Navigation({ currentScreen, onScreenChange }: NavigationProps) {
   const navigationItems = getNavigationItems()
 
   const NavItems = ({ mobile = false }: { mobile?: boolean }) => (
-    <nav className={`${mobile ? 'flex flex-col space-y-2 pt-2' : 'hidden lg:flex items-center space-x-1'}`}>
+    <nav className={`${mobile ? 'flex flex-col space-y-2 pt-2' : 'hidden lg:flex items-center space-x-2'}`}>
       {navigationItems.map((item) => {
         const Icon = item.icon
-        const isActive = currentScreen === item.id
         return (
           <Button
             key={item.id}
-            variant={isActive ? 'default' : 'ghost'}
+            variant={currentScreen === item.id ? 'default' : 'ghost'}
             size={mobile ? 'default' : 'sm'}
-            className={`${mobile ? 'justify-start h-11' : 'h-9 px-3'} ${isActive ? 'bg-gradient-to-r from-primary to-primary/85 text-primary-foreground shadow-md shadow-primary/20' : 'hover:bg-accent/60 hover:text-accent-foreground'} relative transition-all duration-200 rounded-lg`}
+            className={`${mobile ? 'justify-start h-11' : 'h-9 px-3'} ${currentScreen === item.id ? 'bg-primary text-primary-foreground shadow-sm' : 'hover:bg-accent/50'} relative transition-all duration-200`}
             onClick={() => {
               onScreenChange(item.id)
               if (mobile) setIsMobileMenuOpen(false)
@@ -107,14 +106,14 @@ export function Navigation({ currentScreen, onScreenChange }: NavigationProps) {
     return (
       <>
         {/* Mobile Top Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-b border-border/60 mobile-sticky iphone-safe shadow-sm shadow-black/5">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b mobile-sticky iphone-safe">
           <div className="flex items-center justify-between px-4 h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center shadow-md shadow-primary/25">
-                <span className="text-primary-foreground text-sm font-bold">AU</span>
+              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+                <span className="text-primary-foreground text-sm font-semibold">AU</span>
               </div>
-              <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-primary to-violet-600 bg-clip-text text-transparent">AlumniUnite</span>
+              <span className="text-lg font-semibold">AlumniUnite</span>
             </div>
 
             {/* Search & User */}
@@ -251,14 +250,14 @@ export function Navigation({ currentScreen, onScreenChange }: NavigationProps) {
 
   // Desktop/Tablet Navigation
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 shadow-sm shadow-black/5">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center px-6">
         {/* Logo */}
         <div className="flex items-center space-x-3 mr-8">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center shadow-md shadow-primary/25">
-            <span className="text-primary-foreground font-bold">AU</span>
+          <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
+            <span className="text-primary-foreground font-semibold">AU</span>
           </div>
-          <span className="text-xl font-bold tracking-tight hidden sm:block bg-gradient-to-r from-primary to-violet-600 bg-clip-text text-transparent">AlumniUnite</span>
+          <span className="text-xl font-semibold hidden sm:block">AlumniUnite</span>
         </div>
 
         {/* Desktop Navigation */}

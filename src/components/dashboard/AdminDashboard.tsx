@@ -97,18 +97,14 @@ export function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-primary to-violet-700 p-6 sm:p-8 text-primary-foreground shadow-xl shadow-primary/20">
-        <div className="absolute -top-16 -right-16 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
-        <div className="absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-fuchsia-400/20 blur-3xl"></div>
-        <div className="relative">
-          <h1 className="text-2xl font-bold mb-2">Admin Dashboard 📊</h1>
-          <p className="text-white/80 mb-4">
-            Monitor platform performance and manage the alumni community
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Button className="bg-white text-primary hover:bg-white/90 font-semibold shadow-lg shadow-black/10">Broadcast Announcement</Button>
-            <Button variant="outline" className="border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white">Generate Report</Button>
-          </div>
+      <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg p-6">
+        <h1 className="text-2xl font-bold mb-2">Admin Dashboard 📊</h1>
+        <p className="text-muted-foreground mb-4">
+          Monitor platform performance and manage the alumni community
+        </p>
+        <div className="flex gap-3">
+          <Button>Broadcast Announcement</Button>
+          <Button variant="outline">Generate Report</Button>
         </div>
       </div>
 
