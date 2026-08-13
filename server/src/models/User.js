@@ -155,7 +155,6 @@ userSchema.methods.toPublicJSON = function() {
   return obj;
 };
 
-userSchema.index({ email: 1 });
 userSchema.index({ role: 1, status: 1 });
 userSchema.index({ department: 1 });
 userSchema.index({ graduationYear: 1 });
