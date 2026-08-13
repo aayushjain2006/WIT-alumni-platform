@@ -9,11 +9,11 @@ function AppContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="min-h-screen app-bg bg-background flex items-center justify-center px-4">
         <div className="text-center max-w-xs w-full">
           {/* Mobile-optimized loading */}
           <div className="relative mb-8">
-            <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary/25">
               <span className="text-primary-foreground text-lg sm:text-xl font-bold">AU</span>
             </div>
             <div className="absolute inset-0 h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-primary/20 animate-ping mx-auto"></div>
@@ -48,7 +48,7 @@ export default function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen app-bg bg-background">
           {/* Mobile-first app container */}
           <div className="max-w-md mx-auto lg:max-w-none lg:mx-0">
             <AppContent />

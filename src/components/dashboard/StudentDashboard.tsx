@@ -87,21 +87,23 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
     <div className={`${isMobile ? 'space-y-4 pt-16' : 'space-y-6 sm:space-y-8 lg:space-y-10'}`}>
       {/* Mobile Welcome Section */}
       {isMobile ? (
-        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-5 mobile-card">
-          <div className="flex items-center justify-between mb-4">
+        <div className="relative overflow-hidden rounded-2xl p-5 mobile-card bg-gradient-to-br from-primary to-violet-700 text-primary-foreground">
+          <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+          <div className="absolute -bottom-12 -left-8 h-36 w-36 rounded-full bg-fuchsia-400/20 blur-2xl"></div>
+          <div className="relative flex items-center justify-between mb-4">
             <div>
               <h1 className="text-xl font-bold mb-1">Hey John! 👋</h1>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-white/80 text-sm">
                 Ready to explore today?
               </p>
             </div>
-            <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
-              <TrendingUp className="h-6 w-6 text-primary" />
+            <div className="h-12 w-12 rounded-full bg-white/15 flex items-center justify-center backdrop-blur-sm">
+              <TrendingUp className="h-6 w-6" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="relative grid grid-cols-2 gap-3">
             <Button 
-              className="mobile-button"
+              className="mobile-button bg-white text-primary hover:bg-white/90 font-semibold shadow-lg shadow-black/10"
               onClick={() => onNavigate?.('explore-opportunities')}
             >
               <Briefcase className="h-4 w-4 mr-2" />
@@ -109,7 +111,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
             </Button>
             <Button 
               variant="outline" 
-              className="mobile-button"
+              className="mobile-button border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white"
               onClick={() => onNavigate?.('connect-alumni')}
             >
               <Users className="h-4 w-4 mr-2" />
@@ -118,25 +120,30 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
           </div>
         </div>
       ) : (
-        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg p-4 sm:p-6 lg:p-8">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3">Welcome back, John! 👋</h1>
-          <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">
-            Here's what's happening in your alumni network today
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <Button 
-              className="w-full sm:w-auto"
-              onClick={() => onNavigate?.('explore-opportunities')}
-            >
-              Explore Opportunities
-            </Button>
-            <Button 
-              variant="outline" 
-              className="w-full sm:w-auto"
-              onClick={() => onNavigate?.('connect-alumni')}
-            >
-              Connect with Alumni
-            </Button>
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-primary to-violet-700 p-6 sm:p-8 lg:p-10 text-primary-foreground shadow-xl shadow-primary/20">
+          <div className="absolute -top-16 -right-16 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
+          <div className="absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-fuchsia-400/20 blur-3xl"></div>
+          <div className="absolute top-0 right-0 h-full w-1/3 bg-gradient-to-l from-white/5 to-transparent"></div>
+          <div className="relative">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3">Welcome back, John! 👋</h1>
+            <p className="text-white/80 mb-4 sm:mb-6 text-sm sm:text-base">
+              Here's what's happening in your alumni network today
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <Button 
+                className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 font-semibold shadow-lg shadow-black/10"
+                onClick={() => onNavigate?.('explore-opportunities')}
+              >
+                Explore Opportunities
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full sm:w-auto border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+                onClick={() => onNavigate?.('connect-alumni')}
+              >
+                Connect with Alumni
+              </Button>
+            </div>
           </div>
         </div>
       )}

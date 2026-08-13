@@ -107,19 +107,23 @@ export function AlumniDashboard({ onNavigate }: AlumniDashboardProps) {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg p-6">
-        <h1 className="text-2xl font-bold mb-2">Welcome back, Sarah! 🎓</h1>
-        <p className="text-muted-foreground mb-4">
-          Thank you for giving back to the community. Here's your impact summary.
-        </p>
-        <div className="flex gap-3">
-          <Button onClick={() => onNavigate?.('post-opportunity')}>
-            <PlusCircle className="h-4 w-4 mr-2" />
-            Post Job Opportunity
-          </Button>
-          <Button variant="outline" onClick={() => onNavigate?.('connect-alumni')}>
-            View Mentees
-          </Button>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-primary to-violet-700 p-6 sm:p-8 text-primary-foreground shadow-xl shadow-primary/20">
+        <div className="absolute -top-16 -right-16 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
+        <div className="absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-fuchsia-400/20 blur-3xl"></div>
+        <div className="relative">
+          <h1 className="text-2xl font-bold mb-2">Welcome back, Sarah! 🎓</h1>
+          <p className="text-white/80 mb-4">
+            Thank you for giving back to the community. Here's your impact summary.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={() => onNavigate?.('post-opportunity')} className="bg-white text-primary hover:bg-white/90 font-semibold shadow-lg shadow-black/10">
+              <PlusCircle className="h-4 w-4 mr-2" />
+              Post Job Opportunity
+            </Button>
+            <Button variant="outline" onClick={() => onNavigate?.('connect-alumni')} className="border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white">
+              View Mentees
+            </Button>
+          </div>
         </div>
       </div>
 

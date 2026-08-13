@@ -34,6 +34,7 @@ import { NewsManagement } from './admin/NewsManagement'
 export function MainApp() {
   const { user } = useAuth()
   const [currentScreen, setCurrentScreen] = useState('dashboard')
+  const [visitedScreens, setVisitedScreens] = useState<Set<string>>(() => new Set(['dashboard']))
   const [isMobile, setIsMobile] = useState(false)
   const [showPostLoginPopup, setShowPostLoginPopup] = useState(false)
   const [selectedAlumniId, setSelectedAlumniId] = useState<string | null>(null)
@@ -81,18 +82,18 @@ export function MainApp() {
   const renderDashboard = () => {
     switch (user?.role) {
       case 'student':
-        return <StudentDashboard onNavigate={setCurrentScreen} />
+        return <StudentDashboard onNavigate={handleNavigate} />
       case 'alumni':
-        return <AlumniDashboard onNavigate={setCurrentScreen} />
+        return <AlumniDashboard onNavigate={handleNavigate} />
       case 'admin':
         return <AdminDashboard />
       default:
-        return <StudentDashboard onNavigate={setCurrentScreen} />
+        return <StudentDashboard onNavigate={handleNavigate} />
     }
   }
 
-  const renderScreen = () => {
-    switch (currentScreen) {
+  const getScreenElement = (screen: string) => {
+    switch (screen) {
       case 'dashboard':
         return renderDashboard()
       case 'directory':
@@ -156,7 +157,7 @@ export function MainApp() {
       
       // Special screens from dashboard
       case 'explore-opportunities':
-        return <ExploreOpportunities onBack={() => setCurrentScreen('dashboard')} onNavigate={setCurrentScreen} />
+        return <ExploreOpportunities onBack={() => setCurrentScreen('dashboard')} onNavigate={handleNavigate} />
       case 'connect-alumni':
         return <ConnectWithAlumni onBack={() => setCurrentScreen('dashboard')} />
       
@@ -165,15 +166,34 @@ export function MainApp() {
     }
   }
 
+  const allScreenIds = [
+    'dashboard', 'directory', 'alumni-profile', 'events', 'messages', 'notifications',
+    'profile', 'settings', 'opportunities', 'connect', 'campus-news',
+    'jobs', 'post-opportunity', 'mentorship', 'donations', 'alumni-stories',
+    'analytics', 'user-management', 'event-management', 'content-moderation',
+    'broadcast', 'news-management', 'explore-opportunities', 'connect-alumni'
+  ]
+
+  const renderScreens = () => (
+    <>
+      {allScreenIds.filter(id => visitedScreens.has(id)).map(id => (
+        <div key={id} className={id === currentScreen ? '' : 'hidden'}>
+          {getScreenElement(id)}
+        </div>
+      ))}
+    </>
+  )
+
   const handleNavigateToJobs = () => {
-    setCurrentScreen('opportunities')
+    handleNavigate('opportunities')
   }
 
   const handleNavigateToEvents = () => {
-    setCurrentScreen('events')
+    handleNavigate('events')
   }
 
   const handleNavigate = (screen: string, alumniId?: string) => {
+    setVisitedScreens(prev => prev.has(screen) ? prev : new Set(prev).add(screen))
     setCurrentScreen(screen)
     if (alumniId) {
       setSelectedAlumniId(alumniId)
@@ -181,15 +201,15 @@ export function MainApp() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen app-bg bg-background">
       {/* Mobile-first navigation */}
-      <Navigation currentScreen={currentScreen} onScreenChange={setCurrentScreen} />
+      <Navigation currentScreen={currentScreen} onScreenChange={handleNavigate} />
       
       {/* Mobile-optimized main content */}
       <main className={`w-full ${isMobile ? 'mobile-app-container' : 'pb-6'}`}>
         {isMobile ? (
           <div className="px-4 py-4 space-y-4">
-            {renderScreen()}
+            {renderScreens()}
           </div>
         ) : (
           <ResponsiveContainer 
@@ -198,7 +218,7 @@ export function MainApp() {
             className="py-6 sm:py-8 lg:py-12"
           >
             <div className="space-y-6 sm:space-y-8">
-              {renderScreen()}
+              {renderScreens()}
             </div>
           </ResponsiveContainer>
         )}
