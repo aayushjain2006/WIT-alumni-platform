@@ -17,7 +17,8 @@ export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
   const [role, setRole] = useState<UserRole>('student')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const { login, isLoading } = useAuth()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,10 +29,14 @@ export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
       return
     }
 
+    setIsSubmitting(true)
     try {
       await login(email, password, role)
+      // If login succeeds, AuthContext sets the user and App.tsx will render MainApp
     } catch (err: any) {
       setError(err.message || 'Invalid credentials. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -104,8 +109,8 @@ export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Signing in...

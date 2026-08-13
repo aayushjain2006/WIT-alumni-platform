@@ -34,7 +34,7 @@ const server = http.createServer(app);
 const startServer = async () => {
   await connectDB();
   
-  if (process.env.MONGODB_URI === 'memory') {
+  if (process.env.MONGODB_URI === 'memory' || process.env.USING_MEMORY_DB === 'true') {
     await seedData();
   }
 
@@ -52,9 +52,21 @@ const startServer = async () => {
 app.use(helmet());
 
 // CORS config
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin(origin, callback) {
+      // Allow non-browser requests (curl, server-to-server)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      // Allow any *.onrender.com deployment of this app
+      if (/^https:\/\/[^/]+\.onrender\.com$/.test(origin)) return callback(null, true);
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );

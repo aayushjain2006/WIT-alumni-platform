@@ -41,22 +41,26 @@ export function ProfileScreen({ onBack }: ProfileScreenProps) {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
   }
 
-  const handleSave = () => {
-    updateProfile({
-      firstName: editForm.firstName,
-      lastName: editForm.lastName,
-      email: editForm.email,
-      bio: editForm.bio,
-      company: editForm.company,
-      jobTitle: editForm.jobTitle,
-      location: editForm.location,
-      department: editForm.department,
-      graduationYear: editForm.graduationYear ? parseInt(editForm.graduationYear) : undefined,
-      skills: editForm.skills,
-      isProfileComplete: true
-    })
-    setIsEditing(false)
-    toast.success("Profile updated successfully!")
+  const handleSave = async () => {
+    try {
+      await updateProfile({
+        firstName: editForm.firstName,
+        lastName: editForm.lastName,
+        email: editForm.email,
+        bio: editForm.bio,
+        company: editForm.company,
+        jobTitle: editForm.jobTitle,
+        location: editForm.location,
+        department: editForm.department,
+        graduationYear: editForm.graduationYear ? parseInt(editForm.graduationYear) : undefined,
+        skills: editForm.skills,
+        isProfileComplete: true
+      })
+      setIsEditing(false)
+      toast.success("Profile updated successfully!")
+    } catch {
+      toast.error("Failed to update profile. Please try again.")
+    }
   }
 
   const handleCancel = () => {

@@ -22,7 +22,8 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
   const [role, setRole] = useState<UserRole>('student')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const { signup, isLoading } = useAuth()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { signup } = useAuth()
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -47,10 +48,13 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
       return
     }
 
+    setIsSubmitting(true)
     try {
       await signup(formData.email, formData.password, formData.firstName, formData.lastName, role)
-    } catch (err) {
-      setError('Failed to create account. Please try again.')
+    } catch (err: any) {
+      setError(err.message || 'Failed to create account. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -153,13 +157,13 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
           </div>
 
           {error && (
-            <div className="text-sm text-destructive text-center">
+            <div className="bg-red-50 border border-red-500 text-red-600 p-3 rounded-md text-sm font-bold text-center shadow-sm">
               {error}
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Creating account...

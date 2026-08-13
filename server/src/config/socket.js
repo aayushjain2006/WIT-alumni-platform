@@ -9,9 +9,19 @@ let io;
  * @returns {Object} io instance
  */
 const initSocket = (server) => {
+  const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
   io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL || 'http://localhost:3000',
+      origin(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin) || /^https:\/\/[^/]+\.onrender\.com$/.test(origin)) {
+          return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+      },
       methods: ['GET', 'POST'],
       credentials: true,
     },

@@ -10,9 +10,13 @@ export function useSocket() {
 
   useEffect(() => {
     if (user) {
-      // Connect to the Socket.IO server
-      const newSocket = io('/', {
+      // Connect to the backend Socket.IO server (not the frontend origin)
+      const apiBase = import.meta.env.VITE_API_URL || '/api/v1'
+      const socketUrl = apiBase.replace(/\/api\/v1\/?$/, '') || window.location.origin
+
+      const newSocket = io(socketUrl, {
         withCredentials: true,
+        auth: (cb) => cb({ token: localStorage.getItem('accessToken') || undefined }),
       });
 
       newSocket.on('connect', () => {

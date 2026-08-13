@@ -19,7 +19,8 @@ const profileUpdateSchema = Joi.object({
   twitter: Joi.string().allow(''),
   mentoring: Joi.boolean(),
   preferredContact: Joi.array().items(Joi.string()),
-  willingToHelp: Joi.array().items(Joi.string())
+  willingToHelp: Joi.array().items(Joi.string()),
+  isProfileComplete: Joi.boolean()
 });
 
 /**
@@ -34,9 +35,14 @@ const updateProfile = async (req, res, next) => {
     let isProfileComplete = false;
     const userToUpdate = await User.findById(req.user.id);
     
-    const mergedData = { ...userToUpdate.toObject(), ...value };
-    if (mergedData.company && mergedData.jobTitle && mergedData.location && mergedData.bio) {
-      isProfileComplete = true;
+    // Honor the client's explicit intent when provided (e.g. "Skip for now")
+    if (value.isProfileComplete !== undefined) {
+      isProfileComplete = value.isProfileComplete;
+    } else {
+      const mergedData = { ...userToUpdate.toObject(), ...value };
+      if (mergedData.company && mergedData.jobTitle && mergedData.location && mergedData.bio) {
+        isProfileComplete = true;
+      }
     }
     
     value.isProfileComplete = isProfileComplete;

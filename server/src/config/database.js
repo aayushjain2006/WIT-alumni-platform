@@ -14,16 +14,27 @@ const connectDB = async () => {
     const { MongoMemoryServer } = require('mongodb-memory-server');
     const mongoServer = await MongoMemoryServer.create();
     uri = mongoServer.getUri();
+    process.env.USING_MEMORY_DB = 'true';
     console.log('Using in-memory MongoDB');
   }
 
   try {
-    await mongoose.connect(uri);
+    await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
     console.log(`MongoDB Connected: ${mongoose.connection.host}`);
   } catch (error) {
     console.error(`Error connecting to MongoDB: ${error.message}`);
-    console.log('Retrying in 5 seconds...');
-    setTimeout(connectDB, 5000);
+    console.log('Falling back to in-memory MongoDB...');
+    try {
+      const { MongoMemoryServer } = require('mongodb-memory-server');
+      const mongoServer = await MongoMemoryServer.create();
+      uri = mongoServer.getUri();
+      process.env.USING_MEMORY_DB = 'true';
+      await mongoose.connect(uri);
+      console.log('Successfully connected to in-memory MongoDB');
+    } catch (memErr) {
+      console.error(`In-memory fallback failed: ${memErr.message}`);
+      process.exit(1);
+    }
   }
 };
 

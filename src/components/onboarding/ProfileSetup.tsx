@@ -7,7 +7,7 @@ import { Textarea } from '../ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Badge } from '../ui/badge'
 import { useAuth } from '../../contexts/AuthContext'
-import { Camera, X, Plus } from 'lucide-react'
+import { Camera, X, Plus, Loader2 } from 'lucide-react'
 
 const departments = [
   'Computer Science', 'Business Administration', 'Engineering', 'Medicine', 
@@ -36,6 +36,8 @@ export function ProfileSetup() {
   })
   
   const [newSkill, setNewSkill] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState('')
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -58,20 +60,35 @@ export function ProfileSetup() {
     }))
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step < 3) {
       setStep(step + 1)
-    } else {
-      // Complete profile setup
-      updateProfile({
+      return
+    }
+
+    // Complete profile setup
+    setIsSaving(true)
+    setError('')
+    try {
+      await updateProfile({
         ...formData,
         isProfileComplete: true
       })
+    } catch (err: any) {
+      setError(err.message || 'Failed to save your profile. Please try again.')
+      setIsSaving(false)
     }
   }
 
-  const handleSkip = () => {
-    updateProfile({ isProfileComplete: true })
+  const handleSkip = async () => {
+    setIsSaving(true)
+    setError('')
+    try {
+      await updateProfile({ isProfileComplete: true })
+    } catch (err: any) {
+      setError(err.message || 'Failed to save your profile. Please try again.')
+      setIsSaving(false)
+    }
   }
 
   const renderStep1 = () => (
@@ -266,18 +283,30 @@ export function ProfileSetup() {
           {step === 2 && renderStep2()}
           {step === 3 && renderStep3()}
 
+          {error && (
+            <div className="bg-red-50 border border-red-500 text-red-600 p-3 rounded-md text-sm font-bold text-center shadow-sm mt-4">
+              {error}
+            </div>
+          )}
+
           <div className="flex justify-between mt-8">
-            <Button variant="outline" onClick={handleSkip}>
+            <Button variant="outline" onClick={handleSkip} disabled={isSaving}>
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Skip for now
             </Button>
             <div className="space-x-2">
               {step > 1 && (
-                <Button variant="outline" onClick={() => setStep(step - 1)}>
+                <Button variant="outline" onClick={() => setStep(step - 1)} disabled={isSaving}>
                   Back
                 </Button>
               )}
-              <Button onClick={handleNext}>
-                {step === 3 ? 'Complete Profile' : 'Next'}
+              <Button onClick={handleNext} disabled={isSaving}>
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : step === 3 ? 'Complete Profile' : 'Next'}
               </Button>
             </div>
           </div>
