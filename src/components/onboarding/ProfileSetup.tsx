@@ -95,9 +95,9 @@ export function ProfileSetup() {
     <div className="space-y-6">
       <div className="text-center">
         <div className="relative inline-block">
-          <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-            {formData.profileImage ? (
-              <img src={formData.profileImage} alt="Profile" className="h-24 w-24 rounded-full object-cover" />
+          <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center overflow-hidden mx-auto mb-4">
+            {formData.profileImage && formData.profileImage !== 'default-avatar-url.jpg' ? (
+              <img src={formData.profileImage} alt="Profile" className="h-full w-full object-cover object-center" />
             ) : (
               <Camera className="h-8 w-8 text-muted-foreground" />
             )}
