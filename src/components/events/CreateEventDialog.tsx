@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Calendar, MapPin, Users, Clock, Plus, X } from "lucide-react"
+import { Calendar, MapPin, Users, Clock, Plus, X, Loader2 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Switch } from "../ui/switch"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Badge } from "../ui/badge"
+import { Alert, AlertDescription } from "../ui/alert"
+import api from "../../lib/api"
 import { VisuallyHidden } from "../ui/visually-hidden"
 
 interface CreateEventDialogProps {
@@ -42,21 +44,23 @@ export function CreateEventDialog({ isOpen, onClose }: CreateEventDialogProps) {
 
   const [newSpeaker, setNewSpeaker] = useState("")
   const [newAgendaItem, setNewAgendaItem] = useState({ time: "", activity: "" })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const eventTypes = [
-    { value: "networking", label: "Networking" },
-    { value: "webinar", label: "Webinar" },
-    { value: "workshop", label: "Workshop" },
-    { value: "social", label: "Social" },
-    { value: "fundraising", label: "Fundraising" }
+    { value: "Networking", label: "Networking" },
+    { value: "Career", label: "Career" },
+    { value: "Entrepreneurship", label: "Entrepreneurship" },
+    { value: "Reunion", label: "Reunion" },
+    { value: "Workshop", label: "Workshop" },
+    { value: "Seminar", label: "Seminar" }
   ]
 
   const eventCategories = [
-    { value: "professional", label: "Professional" },
-    { value: "career", label: "Career" },
-    { value: "social", label: "Social" },
-    { value: "fundraising", label: "Fundraising" },
-    { value: "education", label: "Education" }
+    { value: "Professional", label: "Professional" },
+    { value: "Social", label: "Social" },
+    { value: "Academic", label: "Academic" },
+    { value: "Business", label: "Business" }
   ]
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -97,12 +101,39 @@ export function CreateEventDialog({ isOpen, onClose }: CreateEventDialogProps) {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real app, this would submit to an API
-    console.log("Creating event:", formData)
-    alert("Event created successfully!")
-    onClose()
+    setError(null)
+    setIsSubmitting(true)
+    try {
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        date: new Date(`${formData.date}T${formData.time || "09:00"}`).toISOString(),
+        time: formData.time,
+        endDate: formData.endTime ? new Date(`${formData.date}T${formData.endTime}`).toISOString() : undefined,
+        endTime: formData.endTime || undefined,
+        location: formData.location,
+        address: formData.address,
+        type: formData.type,
+        category: formData.category,
+        capacity: formData.maxAttendees ? parseInt(formData.maxAttendees) : 10,
+        isVirtual: formData.isVirtual,
+        ticketPrice: formData.ticketPrice ? parseFloat(formData.ticketPrice) : 0,
+        registrationDeadline: formData.registrationDeadline
+          ? new Date(`${formData.registrationDeadline}T23:59:00`).toISOString()
+          : undefined,
+        speakers: formData.speakers,
+        agenda: formData.agenda
+      }
+      await api.post('/events', payload)
+      alert("Event created successfully!")
+      handleClose()
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || "Failed to create event. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const resetForm = () => {
@@ -418,12 +449,18 @@ export function CreateEventDialog({ isOpen, onClose }: CreateEventDialogProps) {
           </Card>
 
           {/* Actions */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button type="submit">
-              Create Event
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {isSubmitting ? "Creating..." : "Create Event"}
             </Button>
           </div>
         </form>

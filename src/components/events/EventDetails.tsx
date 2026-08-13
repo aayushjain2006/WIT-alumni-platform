@@ -57,14 +57,19 @@ export function EventDetails({ event, isOpen, onClose }: EventDetailsProps) {
   }
 
   const getTypeColor = (type: string) => {
+    const key = type?.toLowerCase()
     const colors = {
       networking: "bg-blue-100 text-blue-800",
       webinar: "bg-purple-100 text-purple-800",
       workshop: "bg-green-100 text-green-800",
       social: "bg-orange-100 text-orange-800",
-      fundraising: "bg-red-100 text-red-800"
+      fundraising: "bg-red-100 text-red-800",
+      seminar: "bg-violet-100 text-violet-800",
+      career: "bg-cyan-100 text-cyan-800",
+      entrepreneurship: "bg-amber-100 text-amber-800",
+      reunion: "bg-pink-100 text-pink-800"
     }
-    return colors[type as keyof typeof colors] || "bg-gray-100 text-gray-800"
+    return colors[key as keyof typeof colors] || "bg-gray-100 text-gray-800"
   }
 
   const attendancePercentage = event.maxAttendees 

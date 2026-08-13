@@ -46,14 +46,19 @@ export function EventCard({ event, onClick, isPast = false }: EventCardProps) {
   }
 
   const getTypeColor = (type: string) => {
+    const key = type?.toLowerCase()
     const colors = {
       networking: "bg-blue-100 text-blue-800",
       webinar: "bg-purple-100 text-purple-800",
       workshop: "bg-green-100 text-green-800",
       social: "bg-orange-100 text-orange-800",
-      fundraising: "bg-red-100 text-red-800"
+      fundraising: "bg-red-100 text-red-800",
+      seminar: "bg-violet-100 text-violet-800",
+      career: "bg-cyan-100 text-cyan-800",
+      entrepreneurship: "bg-amber-100 text-amber-800",
+      reunion: "bg-pink-100 text-pink-800"
     }
-    return colors[type as keyof typeof colors] || "bg-gray-100 text-gray-800"
+    return colors[key as keyof typeof colors] || "bg-gray-100 text-gray-800"
   }
 
   const attendancePercentage = event.maxAttendees 
@@ -64,32 +69,36 @@ export function EventCard({ event, onClick, isPast = false }: EventCardProps) {
   const isFull = event.maxAttendees && event.currentAttendees >= event.maxAttendees
 
   return (
-    <Card className="h-full cursor-pointer transition-all hover:shadow-lg hover:scale-105" onClick={onClick}>
+    <Card className="h-full cursor-pointer transition-all hover:shadow-lg hover:scale-105 flex flex-col" onClick={onClick}>
       {/* Event Image */}
-      {event.image && (
-        <div className="relative h-48 overflow-hidden rounded-t-lg">
+      <div className={`relative overflow-hidden rounded-t-lg ${event.image ? "h-48" : "h-36 bg-gradient-to-br from-primary/20 via-primary/5 to-secondary/20"}`}>
+        {event.image ? (
           <img
             src={event.image}
             alt={event.title}
             className="w-full h-full object-cover"
           />
-          {isPast && (
-            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-              <Badge variant="secondary" className="bg-white/90">
-                Past Event
-              </Badge>
-            </div>
-          )}
-          {event.isRegistered && !isPast && (
-            <div className="absolute top-3 right-3">
-              <Badge className="bg-green-600 text-white">
-                <CheckCircle className="h-3 w-3 mr-1" />
-                Registered
-              </Badge>
-            </div>
-          )}
-        </div>
-      )}
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <Calendar className="h-12 w-12 text-primary/40" />
+          </div>
+        )}
+        {isPast && (
+          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+            <Badge variant="secondary" className="bg-white/90">
+              Past Event
+            </Badge>
+          </div>
+        )}
+        {event.isRegistered && !isPast && (
+          <div className="absolute top-3 right-3">
+            <Badge className="bg-green-600 text-white">
+              <CheckCircle className="h-3 w-3 mr-1" />
+              Registered
+            </Badge>
+          </div>
+        )}
+      </div>
 
       <CardHeader className="pb-4">
         <div className="space-y-2">
@@ -105,8 +114,8 @@ export function EventCard({ event, onClick, isPast = false }: EventCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0">
-        <div className="space-y-3">
+      <CardContent className="pt-0 flex-1 flex flex-col">
+        <div className="space-y-3 flex-1">
           {/* Date and Time */}
           <div className="flex items-center gap-2 text-muted-foreground">
             <Calendar className="h-4 w-4 flex-shrink-0" />
@@ -180,7 +189,7 @@ export function EventCard({ event, onClick, isPast = false }: EventCardProps) {
           <Button 
             variant="outline" 
             size="sm" 
-            className="w-full mt-4"
+            className="w-full mt-4 self-end"
             onClick={(e) => {
               e.stopPropagation()
               onClick()
