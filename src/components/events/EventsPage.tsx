@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react"
-import { Calendar, MapPin, Users, Clock, Filter, Search, Plus, Bell, Sparkles, ArrowRight, Globe, TrendingUp } from "lucide-react"
+import { Calendar, MapPin, Users, Clock, Filter, Search, Plus, Bell, Sparkles, ArrowRight, Globe, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
@@ -7,6 +7,7 @@ import { Badge } from "../ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "../ui/sheet"
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "../ui/carousel"
 import { useAuth } from "../../contexts/AuthContext"
 import { EventCard } from "./EventCard"
 import { EventDetails } from "./EventDetails"
@@ -130,13 +131,37 @@ export function EventsPage({ className }: EventsPageProps) {
     return filtered
   }, [searchQuery, selectedCategory, selectedType, activeTab, eventsList])
 
-  // Next upcoming event (nearest date) for the featured hero
-  const featuredEvent = useMemo(() => {
+  // Next upcoming events for the auto-sliding featured carousel (up to 3)
+  const featuredEvents = useMemo(() => {
     const upcoming = eventsList
       .filter(e => new Date(e.date).getTime() >= new Date().setHours(0, 0, 0, 0))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    return upcoming[0] || eventsList[0] || null
+    const slides = upcoming.length >= 2 ? upcoming.slice(0, 3) : eventsList.slice(0, 3)
+    return slides
   }, [eventsList])
+
+  const [heroApi, setHeroApi] = useState<CarouselApi | null>(null)
+  const [heroIndex, setHeroIndex] = useState(0)
+
+  // Auto-slide the featured carousel every 5 seconds
+  useEffect(() => {
+    if (!heroApi || featuredEvents.length <= 1) return
+    const timer = setInterval(() => {
+      heroApi.scrollNext()
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [heroApi, featuredEvents.length])
+
+  // Keep heroIndex in sync when the carousel slides
+  useEffect(() => {
+    if (!heroApi) return
+    const onSelect = () => setHeroIndex(heroApi.selectedScrollSnap() ?? 0)
+    onSelect()
+    heroApi.on("select", onSelect)
+    return () => {
+      heroApi.off("select", onSelect)
+    }
+  }, [heroApi, featuredEvents.length])
 
   // Stats for the top strip
   const stats = useMemo(() => {
@@ -166,11 +191,6 @@ export function EventsPage({ className }: EventsPageProps) {
       month: 'long',
       day: 'numeric'
     })
-  }
-
-  const formatShortDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
   return (
@@ -243,80 +263,139 @@ export function EventsPage({ className }: EventsPageProps) {
         </div>
       )}
 
-      {/* Featured event hero */}
-      {featuredEvent && activeTab === "upcoming" && (
-        <Card className="mb-6 sm:mb-8 lg:mb-10 overflow-hidden border-0">
-          <div className="relative">
-            {featuredEvent.image && (
-              <div className="absolute inset-0">
-                <img
-                  src={featuredEvent.image}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/30" />
-              </div>
+      {/* Featured events auto-sliding carousel */}
+      {featuredEvents.length > 0 && activeTab === "upcoming" && (
+        <div className="mb-6 sm:mb-8 lg:mb-10">
+          <Carousel
+            opts={{ align: "start", loop: featuredEvents.length > 1 }}
+            setApi={setHeroApi}
+            className="relative"
+          >
+            <CarouselContent className="-ml-4">
+              {featuredEvents.map((featuredEvent) => (
+                <CarouselItem key={featuredEvent.id} className="pl-4">
+                  <Card className="overflow-hidden border-0 h-full">
+                    <div className="relative min-h-[340px] sm:min-h-[400px] lg:min-h-[440px]">
+                      {featuredEvent.image && (
+                        <div className="absolute inset-0">
+                          <img
+                            src={featuredEvent.image}
+                            alt={featuredEvent.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      {/* Strong dark overlay so white text is always readable */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40" />
+                      {!featuredEvent.image && (
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-secondary/90" />
+                      )}
+                      <div className="absolute inset-0 flex items-center">
+                        <CardContent className="relative w-full max-w-2xl p-6 sm:p-10 lg:p-14">
+                          <div className="space-y-4 sm:space-y-5">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm border-white/30">
+                                <Sparkles className="h-3 w-3 mr-1" />
+                                Featured Event
+                              </Badge>
+                              <Badge variant="outline" className="bg-white/10 text-white border-white/30 backdrop-blur-sm">
+                                {featuredEvent.type}
+                              </Badge>
+                              {featuredEvent.isVirtual && (
+                                <Badge variant="outline" className="bg-white/10 text-white border-white/30 backdrop-blur-sm">
+                                  <Globe className="h-3 w-3 mr-1" />
+                                  Virtual
+                                </Badge>
+                              )}
+                            </div>
+
+                            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
+                              {featuredEvent.title}
+                            </h2>
+
+                            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm sm:text-base text-white/95">
+                              <span className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-white" />
+                                {formatEventDate(featuredEvent.date)}
+                              </span>
+                              <span className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4 text-white" />
+                                {featuredEvent.location}
+                              </span>
+                              <span className="flex items-center gap-2">
+                                <Users className="h-4 w-4 text-white" />
+                                {featuredEvent.currentAttendees} attending
+                                {featuredEvent.maxAttendees ? ` / ${featuredEvent.maxAttendees}` : ""}
+                              </span>
+                            </div>
+
+                            <p className="text-white/90 leading-relaxed line-clamp-3">
+                              {featuredEvent.description}
+                            </p>
+
+                            <div className="flex flex-wrap gap-3 pt-2">
+                              <Button
+                                className="bg-white text-black hover:bg-white/90 h-11 px-6"
+                                onClick={() => setSelectedEvent(featuredEvent)}
+                              >
+                                View Details
+                                <ArrowRight className="h-4 w-4 ml-2" />
+                              </Button>
+                              {featuredEvent.maxAttendees && featuredEvent.currentAttendees >= featuredEvent.maxAttendees && (
+                                <Badge variant="secondary" className="self-center bg-red-600 text-white border-0">
+                                  Event Full
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </div>
+                    </div>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+
+            {/* Prev / Next arrows */}
+            {featuredEvents.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  aria-label="Previous event"
+                  onClick={() => heroApi?.scrollPrev()}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-10 rounded-full bg-black/50 hover:bg-black/70 text-white p-2.5 backdrop-blur-sm transition-colors"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next event"
+                  onClick={() => heroApi?.scrollNext()}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-10 rounded-full bg-black/50 hover:bg-black/70 text-white p-2.5 backdrop-blur-sm transition-colors"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </>
             )}
-            <CardContent className="relative p-6 sm:p-10 lg:p-14">
-              <div className="max-w-2xl space-y-4 sm:space-y-5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm border-white/30">
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    Featured Event
-                  </Badge>
-                  <Badge variant="outline" className="bg-white/10 text-white border-white/30 backdrop-blur-sm">
-                    {featuredEvent.type}
-                  </Badge>
-                  {featuredEvent.isVirtual && (
-                    <Badge variant="outline" className="bg-white/10 text-white border-white/30 backdrop-blur-sm">
-                      <Globe className="h-3 w-3 mr-1" />
-                      Virtual
-                    </Badge>
-                  )}
-                </div>
+          </Carousel>
 
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
-                  {featuredEvent.title}
-                </h2>
-
-                <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm sm:text-base text-white/90">
-                  <span className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    {formatEventDate(featuredEvent.date)}
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    {featuredEvent.location}
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    {featuredEvent.currentAttendees} attending
-                    {featuredEvent.maxAttendees ? ` / ${featuredEvent.maxAttendees}` : ""}
-                  </span>
-                </div>
-
-                <p className="text-white/80 leading-relaxed line-clamp-3">
-                  {featuredEvent.description}
-                </p>
-
-                <div className="flex flex-wrap gap-3 pt-2">
-                  <Button
-                    className="bg-white text-black hover:bg-white/90 h-11 px-6"
-                    onClick={() => setSelectedEvent(featuredEvent)}
-                  >
-                    View Details
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                  {featuredEvent.maxAttendees && featuredEvent.currentAttendees >= featuredEvent.maxAttendees && (
-                    <Badge variant="secondary" className="self-center bg-red-600 text-white border-0">
-                      Event Full
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </div>
-        </Card>
+          {/* Slide dots */}
+          {featuredEvents.length > 1 && (
+            <div className="flex justify-center gap-2 mt-4">
+              {featuredEvents.map((event, index) => (
+                <button
+                  key={event.id}
+                  type="button"
+                  aria-label={`Go to slide ${index + 1}`}
+                  onClick={() => heroApi?.scrollTo(index)}
+                  className={`h-2.5 rounded-full transition-all ${
+                    index === heroIndex ? "w-8 bg-primary" : "w-2.5 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
       {/* Announcements */}
